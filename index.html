@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Generator Label Mobil Outing Class</title>
+
+  <style>
+    :root{ --border:#111; --muted:#333; --scale:1; --label-offset:0px; }
+    body{ font-family: Arial, Helvetica, sans-serif; margin:16px; color:#111; }
+    h1{ font-size:18px; margin:0 0 12px; }
+
+    .app{ display:grid; grid-template-columns:360px 1fr; gap:16px; align-items:start; }
+    .panel{ border:2px solid var(--border); border-radius:10px; padding:12px; }
+    .panel h2{ font-size:14px; margin:0 0 10px; }
+    label{ display:block; font-size:12px; color:var(--muted); margin-top:10px; margin-bottom:4px; }
+    input, select, textarea{
+      width:100%; box-sizing:border-box; padding:10px;
+      border:2px solid #111; border-radius:8px; font-size:14px;
+    }
+    .row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .row.single{ grid-template-columns:1fr; }
+    .btns{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
+    button{
+      padding:10px 12px; border:2px solid #111; border-radius:10px;
+      background:#fff; cursor:pointer; font-weight:700;
+    }
+    button.primary{ background:#111; color:#fff; }
+    button.danger{ border-color:#b00020; color:#b00020; }
+    .hint{ font-size:12px; color:#444; line-height:1.4; margin-top:10px; }
+
+    .tabs{
+      display:flex;
+      gap:8px;
+      margin:8px 0 6px;
+    }
+    .tab-btn{
+      flex:1;
+      border:2px solid #111;
+      border-radius:999px;
+      padding:8px 10px;
+      font-weight:900;
+      text-transform:uppercase;
+      font-size:12px;
+      background:#fff;
+      cursor:pointer;
+    }
+    .tab-btn.is-active{
+      background:#111;
+      color:#fff;
+    }
+    .tab-content{ display:none; }
+    body[data-active-tab="label"] .tab-content[data-tab="label"],
+    body[data-active-tab="absensi"] .tab-content[data-tab="absensi"]{
+      display:block;
+    }
+
+    /* Print area */
+    .sheet{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+      gap:14px;
+    }
+
+    .card{
+      border:10px solid #111;
+      border-radius:18px;
+      padding:18px;
+      min-height:330px;
+      position:relative;
+      overflow:hidden;
+      background:
+        repeating-linear-gradient(
+          135deg,
+          rgba(0,0,0,0.04) 0,
+          rgba(0,0,0,0.04) 8px,
+          rgba(255,255,255,0.0) 8px,
+          rgba(255,255,255,0.0) 16px
+        );
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .card::after{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      height:10px;
+      width:100%;
+      background:#111;
+      opacity:0.9;
+      z-index:1;
+    }
+
+    .card .header{
+      font-size:14px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.6px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .card .header .sub{ font-weight:800; }
+
+    /* Mobil image as design element */
+    .car{
+      position:absolute;
+      left:50%;
+      top:52%;
+      width:520px;
+      transform: translate(-50%, -50%) rotate(-4deg);
+      opacity:0.12;
+      filter: grayscale(1);
+      pointer-events:none;
+      user-select:none;
+      z-index:1;
+    }
+
+    .label{
+      position:relative;
+      display:grid;
+      gap:12px;
+      z-index:2;
+      text-align:center;
+      justify-items:center;
+      padding-top:var(--label-offset);
+    }
+
+    .mobilText{ font-size:calc(30px * var(--scale)); font-weight:900; letter-spacing:1px; text-transform:uppercase; }
+    .bigNo{
+      font-size:calc(var(--no-size, 310px) * var(--scale));
+      font-weight:900;
+      line-height:0.9;
+      margin:0;
+    }
+
+    .line{
+      font-size:calc(52px * var(--scale));
+      font-weight:900;
+      text-transform:uppercase;
+      line-height:1.05;
+    }
+    .line small{
+      font-size:calc(18px * var(--scale));
+      font-weight:800;
+      color:#333;
+      margin-right:8px;
+    }
+
+    .footer{
+      position:relative;
+      z-index:2;
+      margin-top:14px;
+      border-top:4px solid #111;
+      padding-top:10px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:800;
+      text-transform:uppercase;
+      font-size:13px;
+    }
+
+    .tab-sheet{ display:none; }
+    body[data-active-tab="label"] .tab-sheet[data-tab="label"],
+    body[data-active-tab="absensi"] .tab-sheet[data-tab="absensi"]{
+      display:block;
+    }
+    .previewOnly{
+      opacity:0.75;
+    }
+
+    .attendance{
+      position:relative;
+      z-index:2;
+      margin-top:6px;
+      display:grid;
+      gap:8px;
+      --col-num: 28px;
+      --col-check: 70px;
+    }
+    .attendance h3{
+      margin:0;
+      font-size:var(--att-title, 18px);
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      text-align:center;
+    }
+    .attendance .meta{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:800;
+      text-transform:uppercase;
+      font-size:var(--att-meta, 11px);
+    }
+    .attendance table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:var(--att-font, 11px);
+      table-layout:fixed;
+    }
+    .attendance th,
+    .attendance td{
+      border:var(--att-border, 2px) solid #111;
+      padding:var(--att-pad-y, 5px) var(--att-pad-x, 6px);
+      text-transform:uppercase;
+    }
+    .attendance tbody td{
+      vertical-align:middle;
+    }
+    .attendance td:nth-child(2){
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .attendance th{
+      background:#111;
+      color:#fff;
+      font-weight:900;
+      text-align:center;
+      letter-spacing:.3px;
+    }
+    .attendance th:nth-child(1),
+    .attendance td.num{
+      width:var(--col-num);
+      text-align:center;
+      font-weight:800;
+    }
+    .attendance th:nth-child(3),
+    .attendance th:nth-child(4),
+    .attendance td.check{
+      width:var(--col-check);
+      text-align:center;
+      font-weight:800;
+    }
+    .attendance-card{
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* Preview card marker */
+    .previewTag{
+      position:absolute;
+      top:12px;
+      right:12px;
+      border:2px solid #111;
+      border-radius:999px;
+      padding:6px 10px;
+      font-weight:900;
+      font-size:12px;
+      background:#fff;
+      z-index:3;
+      text-transform:uppercase;
+    }
+
+    /* Print Optimizations */
+    @page{ size:A3 portrait; margin:10mm; }
+    
+    @media print{
+      body{ margin:0; }
+      h1{ display:none; }
+      .app{ grid-template-columns:1fr; }
+      .panel{ display:none; }
+      .sheet{ gap:10mm; }
+      .previewTag{ display:none; }
+      .previewOnly{ display:none; }
+      body[data-active-tab="label"] .tab-sheet[data-tab="absensi"]{ display:none; }
+      body[data-active-tab="absensi"] .tab-sheet[data-tab="label"]{ display:none; }
+
+      /* Attendance print optimization untuk A4 */
+      .attendance-card{
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      
+      .attendance-card .card{
+        border:8px solid #111;
+        padding:12px;
+      }
+      
+      .attendance-card .header{
+        font-size:12px;
+        margin-bottom:6px;
+      }
+      
+      .attendance{
+        margin-top:4px;
+        gap:6px;
+      }
+
+      .attendance th{
+        background:#fff !important;
+        color:#111 !important;
+        border:2px solid #111 !important;
+      }
+      
+      .attendance table{
+        border:2px solid #111;
+      }
+    }
+
+    /* A4 specific optimizations */
+    body[data-paper="A4"]{
+      --scale:1.35;
+      --label-offset:8mm;
+    }
+    body[data-paper="A4"] .sheet{
+      grid-template-columns:1fr;
+    }
+    body[data-paper="A4"] .card{
+      min-height:270mm;
+    }
+    
+    /* A4 attendance optimization */
+    body[data-paper="A4"] .attendance-card .card{
+      min-height:auto;
+      max-height:277mm;
+      border:8px solid #111;
+      padding:10mm;
+    }
+    
+    body[data-paper="A4"] .attendance-card .header{
+      font-size:11px;
+      margin-bottom:4px;
+    }
+    
+    body[data-paper="A4"] .attendance{
+      margin-top:3px;
+      gap:5px;
+    }
+    
+    body[data-paper="A4"] .attendance h3{
+      font-size:15px;
+    }
+    
+    body[data-paper="A4"] .attendance .meta{
+      font-size:10px;
+    }
+
+    /* Sizing tiers untuk jumlah siswa berbeda */
+    .attendance.size-small{
+      --att-font: 11px;
+      --att-pad-y: 5px;
+      --att-pad-x: 6px;
+      --att-border: 2px;
+      --att-title: 18px;
+      --att-meta: 11px;
+      --col-num: 28px;
+      --col-check: 70px;
+    }
+    
+    .attendance.size-medium{
+      --att-font: 9.5px;
+      --att-pad-y: 3.5px;
+      --att-pad-x: 5px;
+      --att-border: 1.5px;
+      --att-title: 16px;
+      --att-meta: 10px;
+      --col-num: 26px;
+      --col-check: 65px;
+    }
+    
+    .attendance.size-large{
+      --att-font: 8.5px;
+      --att-pad-y: 2.5px;
+      --att-pad-x: 4px;
+      --att-border: 1.5px;
+      --att-title: 14px;
+      --att-meta: 9px;
+      --col-num: 24px;
+      --col-check: 60px;
+    }
+    
+    .attendance.size-xlarge{
+      --att-font: 7.5px;
+      --att-pad-y: 2px;
+      --att-pad-x: 3px;
+      --att-border: 1px;
+      --att-title: 13px;
+      --att-meta: 8px;
+      --col-num: 22px;
+      --col-check: 55px;
+    }
+
+    /* Label specific sizing */
+    .card.guru-long .line.guruLine{
+      font-size:calc(44px * var(--scale));
+    }
+    .card.guru-xlong .line.guruLine{
+      font-size:calc(38px * var(--scale));
+    }
+    .card.guru-long{
+      --no-size:260px;
+    }
+    .card.guru-xlong{
+      --no-size:240px;
+    }
+    .card.no-2digit{
+      --no-size:260px;
+    }
+    .card.no-3digit{
+      --no-size:220px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Generator Label Mobil Outing Class (Siap Print)</h1>
+
+  <div class="app">
+    <div class="panel">
+      <h2>Input</h2>
+
+      <div class="tabs">
+        <button class="tab-btn is-active" data-tab-btn="label" type="button">Label Mobil</button>
+        <button class="tab-btn" data-tab-btn="absensi" type="button">Absensi</button>
+      </div>
+
+      <div class="row single">
+        <div>
+          <label>Ukuran Kertas saat Print</label>
+          <select id="paper">
+            <option value="A3" selected>A3 (disarankan)</option>
+            <option value="A4">A4</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Kelas</label>
+      <input id="kelas" type="text" placeholder="contoh: 5B" value="5B" />
+
+      <label>Guru Pendamping</label>
+      <input id="guru" type="text" placeholder="contoh: Bu Rina" value="Bu Rina" />
+
+      <div class="tab-content" data-tab="label">
+        <label>Nomor Mobil</label>
+        <input id="noMobil" type="text" placeholder="contoh: 3" value="1" />
+
+        <label>URL Gambar Mobil (opsional)</label>
+        <input id="imgUrl" type="text" value="https://img.freepik.com/vektor-premium/desain-vektor-datar-kendaraan-suv_387989-867.jpg" />
+
+        <div class="btns">
+          <button class="primary" id="btnTambah">Tambah (duplikasi)</button>
+          <button id="btnPrintLabel">Print Label</button>
+          <button class="danger" id="btnClearLabel">Hapus Duplikasi</button>
+        </div>
+      </div>
+
+      <div class="tab-content" data-tab="absensi">
+        <label>Daftar Siswa (satu nama per baris)</label>
+        <textarea id="studentList" rows="8" placeholder="Contoh:
+Ahmad
+Budi
+Citra"></textarea>
+
+        <div class="btns">
+          <button class="primary" id="btnAbsensi">Buat Lembar Absensi</button>
+          <button id="btnPrintAbsensi">Print Absensi</button>
+          <button class="danger" id="btnClearAbsensi">Hapus Absensi</button>
+        </div>
+        
+        <div class="hint" style="margin-top:12px; padding:8px; background:#fffbeb; border-left:3px solid #f59e0b;">
+          <b>💡 Tips Print A4:</b> Untuk 36-41 siswa, sistem akan otomatis menyesuaikan ukuran font & padding agar pas 1 halaman A4.
+        </div>
+      </div>
+
+      <div class="hint">
+        <b>PENTING:</b> Di dialog Print Chrome, centang <b>Background graphics</b> agar border/elemen desain ikut tercetak.
+      </div>
+    </div>
+
+    <div>
+      <div class="tab-sheet" data-tab="label">
+        <div id="labelSheet" class="sheet">
+          <!-- Preview card: selalu ada -->
+          <div class="card" id="previewCard">
+            <div class="previewTag">Preview</div>
+            <img class="car" id="previewCar" alt="Mobil" />
+            <div class="label">
+              <div class="header">
+                <div>OUTING CLASS – FOODMOSPHERE PALEM SEMI KARAWACI</div>
+                <div class="sub" id="previewDate"></div>
+              </div>
+
+              <div class="mobilText">MOBIL</div>
+              <h3 class="bigNo" id="previewNo">1</h3>
+
+              <div class="line"><small>KELAS</small><span id="previewKelas">5B</span></div>
+              <div class="line guruLine"><small>GURU</small><span id="previewGuru">BU RINA</span></div>
+            </div>
+
+            <div class="footer">
+              <div>NAIK SESUAI KELAS & GURU</div>
+              <div>PANITIA OUTING CLASS</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-sheet" data-tab="absensi">
+        <div id="attendanceSheet" class="sheet">
+          <div class="card previewOnly">
+            <div class="previewTag">Preview</div>
+            <div class="header">
+              <div>OUTING CLASS – FOODMOSPHERE PALEM SEMI KARAWACI</div>
+              <div class="sub">11-01-2026</div>
+            </div>
+            <div class="attendance size-small">
+              <h3>Absensi Keberangkatan & Pulang</h3>
+              <div class="meta">
+                <div>Kelas: <span>5B</span></div>
+                <div>Guru: <span>BU RINA</span></div>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Nama Siswa</th>
+                    <th>Berangkat</th>
+                    <th>Pulang</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="num">1</td>
+                    <td>AHMAD</td>
+                    <td class="check"></td>
+                    <td class="check"></td>
+                  </tr>
+                  <tr>
+                    <td class="num">2</td>
+                    <td>BUDI</td>
+                    <td class="check"></td>
+                    <td class="check"></td>
+                  </tr>
+                  <tr>
+                    <td class="num">3</td>
+                    <td>CITRA</td>
+                    <td class="check"></td>
+                    <td class="check"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <template id="attendanceTemplate">
+    <div class="card attendance-card">
+      <div class="previewTag">Absensi</div>
+      <div class="header">
+        <div>OUTING CLASS – FOODMOSPHERE PALEM SEMI KARAWACI</div>
+        <div class="sub attendanceDate"></div>
+      </div>
+      <div class="attendance">
+        <h3>Absensi Keberangkatan & Pulang</h3>
+        <div class="meta">
+          <div>Kelas: <span class="attendanceKelas"></span></div>
+          <div>Guru: <span class="attendanceGuru"></span></div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Siswa</th>
+              <th>Berangkat</th>
+              <th>Pulang</th>
+            </tr>
+          </thead>
+          <tbody class="attendanceBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const labelSheet = document.getElementById('labelSheet');
+    const attendanceSheet = document.getElementById('attendanceSheet');
+
+    function setActiveTab(tab){
+      document.body.dataset.activeTab = tab;
+      document.querySelectorAll('[data-tab-btn]').forEach(btn => {
+        btn.classList.toggle('is-active', btn.dataset.tabBtn === tab);
+      });
+    }
+
+    function setPageSize(size){
+      let style = document.getElementById('dynPage');
+      if(!style){
+        style = document.createElement('style');
+        style.id = 'dynPage';
+        document.head.appendChild(style);
+      }
+      const margin = size === 'A4' ? '6mm' : '10mm';
+      style.textContent = `@page{ size:${size} portrait; margin:${margin}; }`;
+      document.body.dataset.paper = size;
+    }
+
+    function todayID(){
+      const d = new Date();
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yyyy = d.getFullYear();
+      return `${dd}-${mm}-${yyyy}`;
+    }
+
+    function upperSafe(s){
+      return String(s ?? '').trim().toUpperCase();
+    }
+
+    function updatePreview(){
+      const no = document.getElementById('noMobil').value.trim() || '-';
+      const kelas = document.getElementById('kelas').value.trim() || '-';
+      const guru = document.getElementById('guru').value.trim() || '-';
+      const imgUrl = document.getElementById('imgUrl').value.trim();
+
+      document.getElementById('previewNo').textContent = upperSafe(no);
+      document.getElementById('previewKelas').textContent = upperSafe(kelas);
+      document.getElementById('previewGuru').textContent = upperSafe(guru);
+      document.getElementById('previewDate').textContent = todayID();
+
+      const previewCard = document.getElementById('previewCard');
+      const guruLen = upperSafe(guru).length;
+      const noLen = upperSafe(no).length;
+      previewCard.classList.toggle('guru-long', guruLen > 16);
+      previewCard.classList.toggle('guru-xlong', guruLen > 26);
+      previewCard.classList.toggle('no-2digit', noLen >= 2);
+      previewCard.classList.toggle('no-3digit', noLen >= 3);
+
+      const car = document.getElementById('previewCar');
+      if(imgUrl){
+        car.src = imgUrl;
+        car.style.display = 'block';
+      } else {
+        car.style.display = 'none';
+      }
+    }
+
+    function parseStudents(raw){
+      return String(raw || '')
+        .split(/\r?\n/)
+        .map(s => s.trim())
+        .filter(Boolean);
+    }
+
+    function applySizeClass(attendance, totalRows){
+      // Remove all size classes first
+      attendance.classList.remove('size-small', 'size-medium', 'size-large', 'size-xlarge');
+      
+      // totalRows includes the 2 extra blank rows
+      if(totalRows <= 30){
+        attendance.classList.add('size-small');
+      } else if(totalRows <= 36){
+        attendance.classList.add('size-medium');
+      } else if(totalRows <= 41){
+        attendance.classList.add('size-large');
+      } else {
+        attendance.classList.add('size-xlarge');
+      }
+    }
+
+    function createAttendanceCard(){
+      const kelas = upperSafe(document.getElementById('kelas').value.trim() || '-');
+      const guru = upperSafe(document.getElementById('guru').value.trim() || '-');
+      const students = parseStudents(document.getElementById('studentList').value);
+      if(students.length === 0){
+        alert('Isi daftar siswa dulu.');
+        return;
+      }
+
+      const tpl = document.getElementById('attendanceTemplate');
+      const node = tpl.content.firstElementChild.cloneNode(true);
+      node.querySelector('.attendanceDate').textContent = todayID();
+      node.querySelector('.attendanceKelas').textContent = kelas;
+      node.querySelector('.attendanceGuru').textContent = guru;
+      const body = node.querySelector('.attendanceBody');
+      const attendanceWrap = node.querySelector('.attendance');
+
+      students.forEach((name, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="num">${idx + 1}</td>
+          <td>${upperSafe(name)}</td>
+          <td class="check"></td>
+          <td class="check"></td>
+        `;
+        body.appendChild(tr);
+      });
+
+      // Tambah 2 baris kosong untuk antisipasi siswa susulan
+      for(let i = 0; i < 2; i += 1){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="num">${students.length + i + 1}</td>
+          <td></td>
+          <td class="check"></td>
+          <td class="check"></td>
+        `;
+        body.appendChild(tr);
+      }
+
+      // Apply size class based on total rows
+      const totalRows = students.length + 2;
+      applySizeClass(attendanceWrap, totalRows);
+
+      // Hapus tag preview pada absensi supaya tidak mengganggu saat print
+      const tag = node.querySelector('.previewTag');
+      if(tag) tag.remove();
+
+      attendanceSheet.appendChild(node);
+    }
+
+    function cloneFromPreview(){
+      const preview = document.getElementById('previewCard');
+      const clone = preview.cloneNode(true);
+      clone.removeAttribute('id');
+
+      // Hapus tag "Preview" dari duplikasi
+      const tag = clone.querySelector('.previewTag');
+      if(tag) tag.remove();
+
+      labelSheet.appendChild(clone);
+    }
+
+    document.querySelectorAll('[data-tab-btn]').forEach(btn => {
+      btn.addEventListener('click', () => setActiveTab(btn.dataset.tabBtn));
+    });
+    setActiveTab('label');
+
+    document.getElementById('paper').addEventListener('change', (e)=> {
+      setPageSize(e.target.value);
+    });
+    setPageSize(document.getElementById('paper').value);
+
+    ['noMobil','kelas','guru','imgUrl'].forEach(id=>{
+      document.getElementById(id).addEventListener('input', updatePreview);
+    });
+
+    document.getElementById('btnTambah').addEventListener('click', ()=>{
+      const no = document.getElementById('noMobil').value.trim();
+      const kelas = document.getElementById('kelas').value.trim();
+      const guru = document.getElementById('guru').value.trim();
+      if(!no || !kelas || !guru){
+        alert('Isi Nomor Mobil, Kelas, dan Guru dulu.');
+        return;
+      }
+      updatePreview();
+      cloneFromPreview();
+    });
+
+    document.getElementById('btnPrintLabel').addEventListener('click', ()=> window.print());
+    document.getElementById('btnPrintAbsensi').addEventListener('click', ()=> window.print());
+    document.getElementById('btnAbsensi').addEventListener('click', createAttendanceCard);
+
+    document.getElementById('btnClearLabel').addEventListener('click', ()=>{
+      const cards = Array.from(labelSheet.querySelectorAll('.card'));
+      cards.slice(1).forEach(c => c.remove());
+    });
+
+    document.getElementById('btnClearAbsensi').addEventListener('click', ()=>{
+      const cards = Array.from(attendanceSheet.querySelectorAll('.card'));
+      cards.filter(c => !c.classList.contains('previewOnly')).forEach(c => c.remove());
+    });
+
+    updatePreview();
+  </script>
+</body>
+</html>
